@@ -75,10 +75,6 @@ $configureBox = <<-SCRIPT
 	sed -i '/swap/d' /etc/fstab
 	swapoff -a
 
-	#ip of this box
-	#IP_ADDR=`ifconfig eth1 | grep mask | awk '{print $2}'| cut -f2 -d:`
-	#set node-ip
-	#sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" /etc/sysconfig/kubelet
 	#set cgroup driver
 	sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--cgroup-driver=cgroupfs" /etc/sysconfig/kubelet
 	systemctl restart kubelet

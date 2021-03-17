@@ -34,8 +34,6 @@ servers = [
 $configureBox = <<-SCRIPT
 	# install docker v19.03.15 (k8s v1.20 gives a warning for using docker v20)
 	yum install -y yum-utils jq net-tools wget bind-utils tcpdump vim
-	# resolve the address to fix download problem
-	nslookup download.docker.com
 	yum-config-manager --add-repo \
 	https://download.docker.com/linux/centos/docker-ce.repo
 	yum install -y docker-ce-19.03.15 docker-ce-cli-19.03.15 containerd.io

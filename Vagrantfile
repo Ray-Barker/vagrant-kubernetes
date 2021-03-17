@@ -62,7 +62,7 @@ $configureBox = <<-SCRIPT
 	sed -i 's/^SELINUX=enforcing$/SELINUX=permissive/' /etc/selinux/config
 
 	# install kubeadm
-	yum install -y kubelet kubeadm kubectl
+	yum install -y kubelet kubeadm kubectl --disableexcludes=kubernetes
 	systemctl enable kubelet
 	systemctl start kubelet
 

@@ -6,7 +6,7 @@ servers = [
         :name => "k8s-head",
         :type => "master",
         :box => "centos/7",
-        :box_version => "1905.1",
+        :box_version => "2004.01",
         :eth1 => "192.168.205.10",
         :mem => "2048",
         :cpu => "2"
@@ -15,7 +15,7 @@ servers = [
         :name => "k8s-node-1",
         :type => "node",
         :box => "centos/7",
-        :box_version => "1905.1",
+        :box_version => "2004.01",
         :eth1 => "192.168.205.11",
         :mem => "2048",
         :cpu => "2"
@@ -24,7 +24,7 @@ servers = [
         :name => "k8s-node-2",
         :type => "node",
         :box => "centos/7",
-        :box_version => "1905.1",
+        :box_version => "2004.01",
         :eth1 => "192.168.205.12",
         :mem => "2048",
         :cpu => "2"
@@ -32,11 +32,13 @@ servers = [
 ]
 
 $configureBox = <<-SCRIPT
-	# install docker
-	yum install -y yum-utils jq net-tools device-mapper-persistent-data lvm2
+	# install docker v19.03.15 (k8s v1.20 gives a warning for using docker v20)
+	yum install -y yum-utils jq net-tools wget bind-utils tcpdump vim
+	# resolve the address to fix download problem
+	nslookup download.docker.com
 	yum-config-manager --add-repo \
 	https://download.docker.com/linux/centos/docker-ce.repo
-	yum install -y docker-ce docker-ce-cli containerd.io
+	yum install -y docker-ce-19.03.15 docker-ce-cli-19.03.15 containerd.io
 	systemctl enable docker
 	systemctl start docker
 		
@@ -75,6 +77,10 @@ $configureBox = <<-SCRIPT
 	sed -i '/swap/d' /etc/fstab
 	swapoff -a
 
+	#ip of this box
+	#IP_ADDR=`ifconfig eth1 | grep mask | awk '{print $2}'| cut -f2 -d:`
+	#set node-ip
+	#sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" /etc/sysconfig/kubelet
 	#set cgroup driver
 	sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--cgroup-driver=cgroupfs" /etc/sysconfig/kubelet
 	systemctl restart kubelet
@@ -130,7 +136,7 @@ Vagrant.configure("2") do |config|
             config.vm.provider "virtualbox" do |v|
 
                 v.name = opts[:name]
-            	v.customize ["modifyvm", :id, "--groups", "/K8S"]
+            	v.customize ["modifyvm", :id, "--groups", "/k8s"]
                 v.customize ["modifyvm", :id, "--memory", opts[:mem]]
                 v.customize ["modifyvm", :id, "--cpus", opts[:cpu]]
 
@@ -143,7 +149,7 @@ Vagrant.configure("2") do |config|
             else
                 config.vm.provision "shell", inline: $configureNode
             end
-
+			
         end
 
     end

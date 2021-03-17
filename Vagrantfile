@@ -76,11 +76,9 @@ $configureBox = <<-SCRIPT
 	swapoff -a
 
 	#ip of this box
-	#IP_ADDR=`ifconfig eth1 | grep mask | awk '{print $2}'| cut -f2 -d:`
+	IP_ADDR=`ifconfig eth1 | grep mask | awk '{print $2}'| cut -f2 -d:`
 	#set node-ip
-	#sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" /etc/sysconfig/kubelet
-	#set cgroup driver
-	sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--cgroup-driver=cgroupfs" /etc/sysconfig/kubelet
+	sed -i "/^[^#]*KUBELET_EXTRA_ARGS=/c\KUBELET_EXTRA_ARGS=--node-ip=$IP_ADDR" /etc/sysconfig/kubelet
 	systemctl restart kubelet
 SCRIPT
 
@@ -89,11 +87,7 @@ $configureMaster = <<-SCRIPT
     # ip of this box
     IP_ADDR=`ifconfig eth1 | grep mask | awk '{print $2}'| cut -f2 -d:`
 
-	# set default ip for box
-	sed 's/127\.0\.0\.1/192\.168\.205\.10/g' -i /etc/hosts
-	hostname -i
-	
-	# install k8s master
+    # install k8s master
     HOST_NAME=$(hostname -s)
     kubeadm init --apiserver-advertise-address=$IP_ADDR --apiserver-cert-extra-sans=$IP_ADDR  --node-name $HOST_NAME --pod-network-cidr=172.160.0.0/16
 
@@ -107,11 +101,6 @@ $configureMaster = <<-SCRIPT
 
     kubeadm token create --print-join-command >> /etc/kubeadm_join_cmd.sh
     chmod +x /etc/kubeadm_join_cmd.sh
-
-    # required for setting up passwordless ssh between guest VMs
-    sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
-    service sshd restart
-
 SCRIPT
 
 $configureNode = <<-SCRIPT

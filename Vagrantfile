@@ -95,7 +95,7 @@ $configureMaster = <<-SCRIPT
 
     #copying credentials to vagrant and root users
     sudo --user=vagrant mkdir -p /home/vagrant/.kube
-    sudo cp  /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+    sudo cp /etc/kubernetes/admin.conf /home/vagrant/.kube/config
     sudo cp -r /home/vagrant/.kube /root
     sudo chown $(id -u vagrant):$(id -g vagrant) /home/vagrant/.kube/config
 
